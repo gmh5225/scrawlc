@@ -1,0 +1,23 @@
+[package]
+name = "scrawlc"
+version = "1.0.0"
+edition = "2021"
+description = "A compiler for Scrawl."
+readme = "README.md"
+repository = "https://github.com/fsadh/scrawlc"
+license = "MPL-2.0"
+keywords = ["compiler"]
+categories = ["compilers"]
+publish = false                                 # Keep this temporarily
+
+[lib]
+name = "scrawlc"
+path = "src/lib.rs"
+test = true
+
+[[bin]]
+name = "scrawlc"
+path = "src/bin/driver.rs"
+test = false
+
+[dependencies]
