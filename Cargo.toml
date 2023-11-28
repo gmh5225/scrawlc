@@ -21,3 +21,4 @@ path = "src/bin/driver.rs"
 test = false
 
 [dependencies]
+colored = "2.0.4"
