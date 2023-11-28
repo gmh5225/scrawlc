@@ -22,3 +22,5 @@ test = false
 
 [dependencies]
 colored = "2.0.4"
+pest = "2.6"
+pest_derive = "2.6"
