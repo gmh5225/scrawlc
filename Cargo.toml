@@ -17,10 +17,8 @@ test = true
 
 [[bin]]
 name = "scrawlc"
-path = "src/bin/driver.rs"
+path = "src/bin.rs"
 test = false
 
 [dependencies]
 colored = "2.0.4"
-pest = "2.6"
-pest_derive = "2.6"
