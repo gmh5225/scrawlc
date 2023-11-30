@@ -1,3 +1,5 @@
+//! # `scrawlc`
+
 mod analyzer;
 mod tests;
 
