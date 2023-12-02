@@ -274,7 +274,7 @@ impl Scanner {
 
                                 self.advance()?
                             }
-                            '-' => {
+                            '+' => {
                                 _result.push(Token::new("++", "++", &self.cur_pos));
 
                                 self.advance()?
