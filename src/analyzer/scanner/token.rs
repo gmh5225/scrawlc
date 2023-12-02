@@ -74,11 +74,19 @@ impl fmt::Display for Token {
     ///
     /// ```
     /// let pos = scrawlc::Position::default();
-    /// let tok = scrawlc::Token::new("exemplum", "exemplum", &pos);
+    /// let mut tok = scrawlc::Token::new("exemplum", "exemplum", &pos);
     ///
-    /// assert_eq!(tok.to_string(), "<exemplum>(exemplum)@1:1");
+    /// assert_eq!(tok.to_string(), "<exemplum>@1:1");
+    ///
+    /// tok = scrawlc::Token::new("exemplum", "dissimilis", &pos);
+    ///
+    /// assert_eq!(tok.to_string(), "<exemplum>@1:1 = dissimilis");
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "<{}>({})@{}", self.name, self.value, self.position)
+        if self.name == self.value {
+            write!(f, "<{}>@{}", self.value, self.position)
+        } else {
+            write!(f, "<{}>@{} = {}", self.name, self.position, self.value)
+        }
     }
 }

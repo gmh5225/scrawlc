@@ -40,13 +40,13 @@ impl Scanner {
     /// ```
     /// let scanner = scrawlc::Scanner::with_position("example content", &scrawlc::Position::default()).unwrap();
     ///
-    /// assert_eq!(scanner.content(), &format!("example content{}", scrawlc::ETX));
+    /// assert_eq!(scanner.content(), &format!("example content{}{}", scrawlc::LF, scrawlc::ETX));
     /// assert_eq!(scanner.current_position(), &scrawlc::Position::new(0, 0, 0));
     /// assert_eq!(scanner.current_character(), 'e');
     /// ```
     pub fn with_position(content: &str, position: &Position) -> Result<Self, ScannerError> {
         let mut s = Scanner {
-            cont: format!("{}{}", content, ETX),
+            cont: format!("{}{}{}", content, LF, ETX),
             cur_pos: position.clone(),
             cur_char: ' ',
         };
@@ -68,7 +68,7 @@ impl Scanner {
     /// ```
     /// let scanner = scrawlc::Scanner::new("example content").unwrap();
     ///
-    /// assert_eq!(scanner.content(), &format!("example content{}", scrawlc::ETX));
+    /// assert_eq!(scanner.content(), &format!("example content{}{}", scrawlc::LF, scrawlc::ETX));
     /// assert_eq!(scanner.current_position(), &scrawlc::Position::new(0, 0, 0));
     /// assert_eq!(scanner.current_character(), 'e');
     /// ```
@@ -82,7 +82,7 @@ impl Scanner {
     /// ```
     /// let scanner = scrawlc::Scanner::new("example content").unwrap();
     ///
-    /// assert_eq!(scanner.content(), &format!("example content{}", scrawlc::ETX));
+    /// assert_eq!(scanner.content(), &format!("example content{}{}", scrawlc::LF, scrawlc::ETX));
     /// ```
     pub fn content(&self) -> &String {
         &self.cont
@@ -416,7 +416,9 @@ impl Scanner {
 
                         match self.cur_char {
                             '/' => {
-                                while self.cur_char != LF || self.cur_char != ETX {
+                                self.advance()?;
+
+                                while self.peek_next()? != LF || self.peek_next()? != ETX {
                                     self.advance()?;
                                 }
 

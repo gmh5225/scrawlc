@@ -1,0 +1,10 @@
+import IO;
+
+print(text: String) {
+    file = new IO::File("stdout");
+    file.write(text);
+
+    file.close();
+}
+
+print("Hello, world!\n");

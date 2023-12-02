@@ -142,7 +142,7 @@ fn main() {
     }
 
     for (i, token) in scan_result.iter().enumerate() {
-        print!(
+        println!(
             "    {}{} {}",
             i.to_string().bright_green(),
             ":".bright_green(),

@@ -26,7 +26,10 @@ fn test_token() {
     use crate::{Position, Token};
 
     let pos = Position::default();
-    let tok = Token::new("test_name", "test_value", &pos);
+    let mut tok = Token::new("test_name", "test_value", &pos);
 
-    assert_eq!(tok.to_string(), "<test_name>(test_value)@1:1");
+    assert_eq!(tok.to_string(), "<test_name>@1:1 = test_value");
+
+    tok = Token::new("test_value", "test_value", &pos);
+    assert_eq!(tok.to_string(), "<test_value>@1:1");
 }
