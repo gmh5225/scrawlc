@@ -1,5 +1,4 @@
-mod position;
-mod token;
+mod scanner;
 
-pub use position::Position;
-pub use token::Token;
+pub use scanner::Position;
+pub use scanner::Token;

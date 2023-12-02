@@ -1,4 +1,4 @@
-use crate::analyzer::position::Position;
+use crate::analyzer::scanner::position::Position;
 
 use std::fmt;
 
