@@ -5,4 +5,5 @@
 mod analyzer;
 mod tests;
 
+pub use analyzer::Node;
 pub use analyzer::{Position, Scanner, ScannerError, Token, ETX, LF};
