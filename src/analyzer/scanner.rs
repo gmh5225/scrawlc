@@ -180,7 +180,7 @@ impl Scanner {
             } else if NUMBER_SET.contains(self.cur_char) {
                 let mut number = String::new();
 
-                while IDENTIFIER_SET.contains(self.cur_char) {
+                while NUMBER_SET.contains(self.cur_char) {
                     number.push(self.cur_char);
 
                     self.advance()?;
