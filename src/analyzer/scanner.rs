@@ -10,6 +10,9 @@ use thiserror::Error;
 pub enum ScannerError {
     #[error("cannot access {0}, end of content")]
     EndOfContent(Position),
+
+    #[error("{0} is an unsupported character")]
+    UnsupportedCharacter(char),
 }
 
 #[derive(Debug)]
@@ -131,8 +134,23 @@ impl Scanner {
         Ok(clone)
     }
 
+    /// Scans the content.
+    /// See the scanner specification for more information.
+    ///
+    /// # Errors
+    /// `ScannerError::EndOfContent`: If advancing fails.
+    /// `ScannerError::UnsupportedCharacter`: If the character is unsupported/unknown.
+    ///
+    /// # Examples
+    /// See the scanner documentation for detailed examples.
     pub fn scan(&mut self) -> Result<Vec<Token>, ScannerError> {
         let mut _result: Vec<Token> = Vec::new();
+
+        while self.cur_pos.index + 1 < self.cont.len() {
+            match self.cur_char {
+                _ => return Err(ScannerError::UnsupportedCharacter(self.cur_char)),
+            }
+        }
 
         Ok(_result)
     }
