@@ -158,14 +158,11 @@ impl Scanner {
     }
 
     /// Scans the content.
-    /// See the scanner specification for more information.
+    /// See the scanner documentation for more information and detailed examples.
     ///
     /// # Errors
     /// `ScannerError::EndOfContent`: If advancing fails.
     /// `ScannerError::UnsupportedCharacter`: If the character is unsupported/unknown.
-    ///
-    /// # Examples
-    /// See the scanner documentation for detailed examples.
     pub fn scan(&mut self) -> Result<Vec<Token>, ScannerError> {
         let mut _result: Vec<Token> = Vec::new();
 
@@ -173,7 +170,7 @@ impl Scanner {
             if IDENTIFIER_SET.contains(self.cur_char) {
                 let mut identifier = String::new();
 
-                while IDENTIFIER_SET.contains(self.cur_char) {
+                while IDENTIFIER_SET.contains(self.cur_char) || NUMBER_SET.contains(self.cur_char) {
                     identifier.push(self.cur_char);
 
                     self.advance()?;
