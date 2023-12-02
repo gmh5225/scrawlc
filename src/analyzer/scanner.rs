@@ -543,6 +543,22 @@ impl Scanner {
                             self.advance()?;
                         }
 
+                        _result.push(Token::new("string", &string, &self.cur_pos));
+
+                        self.advance()?
+                    }
+                    '\'' => {
+                        self.advance()?;
+                        let mut character = String::new();
+
+                        while self.cur_char != '\'' {
+                            character.push(self.cur_char);
+
+                            self.advance()?;
+                        }
+
+                        _result.push(Token::new("character", &character, &self.cur_pos));
+
                         self.advance()?
                     }
                     _ => return Err(ScannerError::UnsupportedCharacter(self.cur_char)),
