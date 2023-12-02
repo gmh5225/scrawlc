@@ -6,6 +6,11 @@ pub use token::Token;
 
 use thiserror::Error;
 
+pub const ETX: char = 0x03 as char; // End Of Text
+pub const TAB: char = 0x09 as char; // Tab ('\t')
+pub const LF: char = 0x0A as char; // Line Feed ('\n')
+pub const CR: char = 0x0D as char; // Carriage Return ('\r')
+
 #[derive(Debug, Error)]
 pub enum ScannerError {
     #[error("cannot access {0}, end of content")]
@@ -32,13 +37,13 @@ impl Scanner {
     /// ```
     /// let scanner = scrawlc::Scanner::with_position("example content", &scrawlc::Position::default()).unwrap();
     ///
-    /// assert_eq!(scanner.content(), "example content");
+    /// assert_eq!(scanner.content(), format!("example content{}", ETX as char));
     /// assert_eq!(scanner.current_position(), &scrawlc::Position::new(0, 0, 0));
     /// assert_eq!(scanner.current_character(), 'e');
     /// ```
     pub fn with_position(content: &str, position: &Position) -> Result<Self, ScannerError> {
         let mut s = Scanner {
-            cont: content.to_string(),
+            cont: format!("{}{}", content, ETX as char),
             cur_pos: position.clone(),
             cur_char: ' ',
         };
@@ -60,7 +65,7 @@ impl Scanner {
     /// ```
     /// let scanner = scrawlc::Scanner::new("example content").unwrap();
     ///
-    /// assert_eq!(scanner.content(), "example content");
+    /// assert_eq!(scanner.content(), format!("example content{}", ETX as char));
     /// assert_eq!(scanner.current_position(), &scrawlc::Position::new(0, 0, 0));
     /// assert_eq!(scanner.current_character(), 'e');
     /// ```
@@ -102,6 +107,21 @@ impl Scanner {
     /// ```
     pub fn current_character(&self) -> char {
         self.cur_char
+    }
+
+    /// Peeks the next character.
+    fn peek_next(&self) -> Result<char, ScannerError> {
+        match self.cont.chars().nth(self.cur_pos.index + 1) {
+            Some(new_character) => Ok(new_character),
+            None => return Err(ScannerError::EndOfContent(self.cur_pos)),
+        }
+    }
+
+    /// This function solves a bug.
+    // ! Do not touch it, and do not try to solve the bug.
+    // ! I fear it may cause bigger bugs.
+    fn stay(&self) -> Result<Position, ScannerError> {
+        Ok(self.cur_pos)
     }
 
     /// Advances the scanner by one.
@@ -146,10 +166,352 @@ impl Scanner {
     pub fn scan(&mut self) -> Result<Vec<Token>, ScannerError> {
         let mut _result: Vec<Token> = Vec::new();
 
-        while self.cur_pos.index + 1 < self.cont.len() {
+        while self.peek_next()? != ETX {
             match self.cur_char {
+                ETX => self.advance()?,
+                TAB => self.advance()?,
+                LF => self.advance()?,
+                CR => self.advance()?,
+                ' ' => self.advance()?,
+                '(' => {
+                    _result.push(Token::new("(", "(", &self.cur_pos));
+
+                    self.advance()?
+                }
+                ')' => {
+                    _result.push(Token::new(")", ")", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '{' => {
+                    _result.push(Token::new("{", "{", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '}' => {
+                    _result.push(Token::new("}", "}", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '[' => {
+                    _result.push(Token::new("[", "[", &self.cur_pos));
+
+                    self.advance()?
+                }
+                ']' => {
+                    _result.push(Token::new("]", "]", &self.cur_pos));
+
+                    self.advance()?
+                }
+                ';' => {
+                    _result.push(Token::new(";", ";", &self.cur_pos));
+
+                    self.advance()?
+                }
+                ',' => {
+                    _result.push(Token::new(",", ",", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '.' => {
+                    _result.push(Token::new(".", ".", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '@' => {
+                    _result.push(Token::new("@", "@", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '#' => {
+                    _result.push(Token::new("#", "#", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '=' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("==", "==", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("=", "=", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '+' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("+=", "+=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '-' => {
+                            _result.push(Token::new("++", "++", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("+", "+", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '>' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new(">=", ">=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '>' => {
+                            self.advance()?;
+
+                            match self.cur_char {
+                                '=' => {
+                                    _result.push(Token::new(">>=", ">>=", &self.cur_pos));
+
+                                    self.advance()?
+                                }
+                                _ => {
+                                    _result.push(Token::new(">>", ">>", &self.cur_pos));
+
+                                    self.stay()?
+                                }
+                            }
+                        }
+                        _ => {
+                            _result.push(Token::new(">", ">", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '-' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("-=", "-=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '-' => {
+                            _result.push(Token::new("--", "--", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '>' => {
+                            _result.push(Token::new("->", "->", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("-", "-", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '<' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("<=", "<=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '<' => {
+                            self.advance()?;
+
+                            match self.cur_char {
+                                '=' => {
+                                    _result.push(Token::new("<<=", "<<=", &self.cur_pos));
+
+                                    self.advance()?
+                                }
+                                _ => {
+                                    _result.push(Token::new("<<", "<<", &self.cur_pos));
+
+                                    self.stay()?
+                                }
+                            }
+                        }
+                        _ => {
+                            _result.push(Token::new("<", "<", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '*' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("*=", "*=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("*", "*", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '!' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("!=", "!=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("!", "!", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '/' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '/' => {
+                            while self.cur_char != LF || self.cur_char != ETX {
+                                self.advance()?;
+                            }
+
+                            self.stay()?
+                        }
+                        '=' => {
+                            _result.push(Token::new("/=", "/=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("/", "/", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '~' => {
+                    _result.push(Token::new("~", "~", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '&' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("&=", "&=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '&' => {
+                            _result.push(Token::new("&&", "&&", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("&", "&", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '?' => {
+                    _result.push(Token::new("?", "?", &self.cur_pos));
+
+                    self.advance()?
+                }
+                '|' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '=' => {
+                            _result.push(Token::new("|=", "|=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        '|' => {
+                            _result.push(Token::new("||", "||", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("|", "|", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                ':' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        ':' => {
+                            _result.push(Token::new("::", "::", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new(":", ":", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '^' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '^' => {
+                            _result.push(Token::new("^=", "^=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("^", "^", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
+                '%' => {
+                    self.advance()?;
+
+                    match self.cur_char {
+                        '%' => {
+                            _result.push(Token::new("%=", "%=", &self.cur_pos));
+
+                            self.advance()?
+                        }
+                        _ => {
+                            _result.push(Token::new("%", "%", &self.cur_pos));
+
+                            self.stay()?
+                        }
+                    }
+                }
                 _ => return Err(ScannerError::UnsupportedCharacter(self.cur_char)),
-            }
+            };
         }
 
         Ok(_result)
