@@ -22,3 +22,4 @@ test = false
 
 [dependencies]
 colored = "2.0.4"
+thiserror = "1"

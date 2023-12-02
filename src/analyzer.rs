@@ -1,4 +1,3 @@
 mod scanner;
 
-pub use scanner::Position;
-pub use scanner::Token;
+pub use scanner::{Position, Scanner, ScannerError, Token};

@@ -5,4 +5,4 @@
 mod analyzer;
 mod tests;
 
-pub use analyzer::{Position, Token};
+pub use analyzer::{Position, Scanner, ScannerError, Token};
