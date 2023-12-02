@@ -3,4 +3,4 @@
 mod analyzer;
 mod tests;
 
-pub use analyzer::Position;
+pub use analyzer::{Position, Token};

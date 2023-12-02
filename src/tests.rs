@@ -20,3 +20,13 @@ fn test_position() {
 
     assert_eq!(pos.to_string(), "2:1");
 }
+
+#[test]
+fn test_token() {
+    use crate::{Position, Token};
+
+    let pos = Position::default();
+    let tok = Token::new("test_name", "test_value", &pos);
+
+    assert_eq!(tok.to_string(), "<test_name>(test_value)@1:1");
+}
