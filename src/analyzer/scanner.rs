@@ -101,6 +101,36 @@ impl Scanner {
         self.cur_char
     }
 
+    /// Advances the scanner by one.
+    /// Returns the old position if succeeds.
+    ///
+    /// # Errors
+    /// `ScannerError::EndOfContent`: If cannot get the next character.
+    ///
+    /// # Examples
+    /// ```
+    /// let mut scanner = scrawlc::Scanner::new("example content").unwrap();
+    ///
+    /// assert_eq!(scanner.current_position().index, 0);
+    /// assert_eq!(scanner.current_character(), 'e');
+    ///
+    /// scanner.advance().unwrap();
+    ///
+    /// assert_eq!(scanner.current_position().index, 1);
+    /// assert_eq!(scanner.current_character(), 'x');
+    /// ```
+    pub fn advance(&mut self) -> Result<Position, ScannerError> {
+        let clone = self.cur_pos.clone();
+
+        self.cur_pos.advance(self.cur_char);
+        self.cur_char = match self.cont.chars().nth(self.cur_pos.index) {
+            Some(new_character) => new_character,
+            None => return Err(ScannerError::EndOfContent(self.cur_pos)),
+        };
+
+        Ok(clone)
+    }
+
     pub fn scan(&mut self) -> Result<Vec<Token>, ScannerError> {
         let mut _result: Vec<Token> = Vec::new();
 
