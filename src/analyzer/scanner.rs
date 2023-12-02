@@ -189,7 +189,7 @@ impl Scanner {
                 _result.push(Token::new("number", &number, &self.cur_pos))
             } else {
                 match self.cur_char {
-                    ETX => self.advance()?,
+                    ETX => break,
                     TAB => self.advance()?,
                     LF => self.advance()?,
                     CR => self.advance()?,
