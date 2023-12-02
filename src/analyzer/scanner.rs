@@ -100,4 +100,10 @@ impl Scanner {
     pub fn current_character(&self) -> char {
         self.cur_char
     }
+
+    pub fn scan(&mut self) -> Result<Vec<Token>, ScannerError> {
+        let mut _result: Vec<Token> = Vec::new();
+
+        Ok(_result)
+    }
 }
